@@ -1,0 +1,50 @@
+pip install opencv-python scikit-image
+import cv2
+import numpy as np
+from skimage import measure
+import matplotlib.pyplot as plt
+
+# Load the image
+image_path = "nanofiber.png"  # Replace with your image path
+image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
+
+# Preprocess the image
+# Apply Gaussian Blur to smooth the image
+blurred = cv2.GaussianBlur(image, (5, 5), 0)
+
+# Threshold the image to get a binary image
+_, binary = cv2.threshold(blurred, 127, 255, cv2.THRESH_BINARY_INV)
+
+# Detect edges using Canny edge detector
+edges = cv2.Canny(binary, 50, 150)
+
+# Find contours
+contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+
+# Measure diameters
+diameters = []
+for contour in contours:
+    if len(contour) > 5:  # Filter small contours
+        ellipse = cv2.fitEllipse(contour)
+        (major_axis, minor_axis) = ellipse[1]
+        diameter = (major_axis + minor_axis) / 2
+        diameters.append(diameter)
+
+# Calculate average diameter
+average_diameter = np.mean(diameters) if diameters else 0
+
+# Output the results
+print(f"Estimated fiber diameters: {diameters}")
+print(f"Average fiber diameter: {average_diameter}")
+
+
+
+
+
+
+
+
+
+
+
+
